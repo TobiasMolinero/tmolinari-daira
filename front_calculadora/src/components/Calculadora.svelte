@@ -1,79 +1,124 @@
+<script>
+// @ts-nocheck
+	import Button from "./Button.svelte";
+
+    let buttons = ["CE", "C", "+/-", "%", "7", "8", "9", "/", "4", "5", "6", "x", "1", "2", "3", "-", "0", ".", "=", "+"]
+    let bottomDisplay = "";
+    let topDisplay = "";
+    let firstNumber = 0;
+    let secondNumber = 0;
+    let operator = "";
+    let flag = false;
+    let wasResult = false;
+
+
+    const getValorButton = (e) => {
+        let valueButton = e.detail
+        if(/^[0-9]$/.test(valueButton)){
+            writeBottomDisplay(valueButton);
+        } else if(valueButton == '/' || valueButton == 'x' || valueButton == '-' || valueButton == '+'){
+            if(flag){
+                return false;
+            }
+            writeTopDisplay(valueButton)
+        } else if(valueButton == 'CE' || valueButton == 'C'){
+            if(valueButton == 'C'){
+                clearDisplay();
+            } else {
+                bottomDisplay = "";
+            }   
+        } else if(valueButton == '='){
+            if(!flag){
+                return false;
+            }
+            resolve(bottomDisplay);
+        }
+    }
+
+    const writeBottomDisplay = (value) => {
+        if(wasResult){
+            bottomDisplay = value;
+            wasResult = false;
+            return false;
+        }
+        bottomDisplay += value;
+    }
+
+    const writeTopDisplay = (value) => {
+        if(bottomDisplay == ""){
+            return false;
+        }
+        let sign = value == 'x' ? '*' : value;
+        operator = value;
+        firstNumber = +bottomDisplay;
+        topDisplay = bottomDisplay + sign;
+        bottomDisplay = "";
+        flag = true;
+    }
+
+    const clearDisplay = () => {
+        bottomDisplay = "";
+        topDisplay = "";
+        operator = "";
+        flag = false;
+    }
+
+    const resolve = (value) => {
+        if(value == "0" && operator == "/"){
+            alert('ATENCION: no puede dividir un numero en cero');
+            bottomDisplay = "";
+            return false;
+        }
+        secondNumber = +value;
+        switch (operator) {
+            case "/":
+                bottomDisplay = firstNumber / secondNumber;
+                topDisplay = "";
+                flag = false;
+                wasResult = true;
+                break;
+
+            case "x":
+                bottomDisplay = firstNumber * secondNumber;
+                topDisplay = "";
+                flag = false;
+                wasResult = true;
+                break;
+
+            case "-":
+                bottomDisplay = firstNumber - secondNumber;
+                topDisplay = "";
+                flag = false;
+                wasResult = true;
+                break;
+
+            case "+":
+                bottomDisplay = firstNumber + secondNumber;
+                topDisplay = "";
+                flag = false;
+                wasResult = true;
+                break;
+        
+            default:
+                break;
+        }
+    }
+
+
+</script>
+
+
 <div class="container">
-    <div class="pantalla_calculadora">
-        <div class="pantalla_superior bg-black text-end text-white">8*</div>
-        <div class="pantalla_inferior bg-black text-end text-white text-xl py-1">3</div>
+    <div>
+        <div class="bg-black text-end text-white h-6">{topDisplay}</div>
+        <div class="bg-black text-end text-white text-xl py-1 h-8">{bottomDisplay}</div>
     </div>
     <div class="teclado grid grid-cols-4 grid-rows-5 gap-1 mt-1">
-        <button class="boton_teclado cero">CE</button>
-        <button class="boton_teclado cero">C</button>
-        <button class="boton_teclado operador">+/-</button>
-        <button class="boton_teclado operador">%</button>
-        <button class="boton_teclado number">7</button>
-        <button class="boton_teclado number">8</button>
-        <button class="boton_teclado number">9</button>
-        <button class="boton_teclado operador">/</button>
-        <button class="boton_teclado number">4</button>
-        <button class="boton_teclado number">5</button>
-        <button class="boton_teclado number">6</button>
-        <button class="boton_teclado operador">x</button>
-        <button class="boton_teclado number">1</button>
-        <button class="boton_teclado number">2</button>
-        <button class="boton_teclado number">3</button>
-        <button class="boton_teclado operador">-</button>
-        <button class="boton_teclado number">0</button>
-        <button class="boton_teclado number">.</button>
-        <button class="boton_teclado igual">=</button>
-        <button class="boton_teclado operador">+</button>
+
+        {#each buttons as button}
+            <Button valor={button} on:send={getValorButton} />
+        {/each}
+
     </div>
 </div>
 
-<style>
-
-
-    .boton_teclado{
-        padding: 15px;
-        color: white;
-        font-weight: 700;
-    }
-
-    .cero{
-        background: orangered;
-    }
-    .cero:hover{
-        background: rgb(200, 50, 0);
-    }
-    .cero:active{
-        background: orangered;
-    }
-
-    .operador{
-        background: maroon;
-    }
-    .operador:hover{
-        background: rgb(95, 0, 0);
-    }
-    .operador:active{
-        background: maroon;
-    }
-
-    .number{
-        background: blue;
-    }
-    .number:hover{
-        background: rgb(0, 0, 175);
-    }
-    .number:active{
-        background: blue;
-    }
-
-    .igual{
-        background: green;
-    }
-    .igual:hover{
-        background: rgb(0, 85, 0);
-    }
-    .igual:active{
-        background: green;
-    }
-
-</style>
