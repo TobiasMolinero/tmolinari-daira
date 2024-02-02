@@ -1,8 +1,23 @@
 <script>
+// @ts-nocheck
+
     import Calculadora from "../components/Calculadora.svelte";
     import Historial from "../components/Historial.svelte";
 
-    let showHistorial = false;
+    let historial = false;
+    let data = {};
+
+    const mostrarHistorial = () => {
+        historial ? historial = false : historial = true;
+    }
+
+    const getResult = (e) => {
+        data = {
+            result: e.detail,
+            wasresult: true
+        }
+        historial = false;
+    }
 
 
 </script>
@@ -14,10 +29,16 @@
             <h2 class="text-xl text-center font-bold py-3">Calculadora Basica</h2>
         </div>
         <div class="body bg-white p-5">
-            <Calculadora />
+            {#if historial}
+                <Historial on:send={getResult}/>
+            {:else}
+                <Calculadora data={data}/>
+            {/if}
         </div>
     </div>
-    <button class="bg-sky-500 py-3 px-5 rounded-md shadow-md shadow-gray-500 text-white font-semibold">Ver historial</button>
+    <button on:click={mostrarHistorial} class="bg-sky-500 py-3 px-5 rounded-md shadow-md shadow-gray-500 text-white font-semibold">
+        Ver {historial ? "Calculadora" : "Historial"}
+    </button>
 </div>
 
 
